@@ -1,0 +1,383 @@
+---
+import { Icon } from 'astro-icon/components';
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import Socials from '../components/Socials.astro';
+import { companies, education, certifications } from '../data/experience';
+import { site } from '../config';
+import avatar from '../assets/avatar.png';
+---
+
+<BaseLayout title={`About — ${site.name}`}>
+  <Breadcrumb current="ABOUT" />
+
+  <header class="mt-14 flex items-center gap-3.5">
+    <Image
+      src={avatar}
+      alt={site.fullName}
+      widths={[112, 168, 224]}
+      sizes="56px"
+      format="webp"
+      quality={95}
+      loading="eager"
+      fetchpriority="high"
+      decoding="async"
+      class="size-14 shrink-0 rounded-xl border border-border/70 object-cover object-center"
+    />
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight">{site.fullName}</h1>
+      <p class="mt-0.5 text-[14px] text-muted-foreground">
+        Graphic Designer at <a
+          href="https://sfjbs.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="link">SFJ Business Solutions</a
+        >.
+      </p>
+    </div>
+  </header>
+
+  <div class="mt-10 space-y-5 leading-relaxed text-foreground">
+    <p>
+      I'm <strong>Masethung</strong>, better known online as <strong>Xsenze</strong>. I solve
+      design problems with clarity and style, creating digital experiences that are intuitive,
+      functional, and visually engaging.
+    </p>
+    <p>
+      Right now I work as a <strong>Graphic Designer</strong> in the EdTech industry, creating
+      branding, marketing campaigns, UI designs, and learning experiences. From social media
+      creatives and course promotions to dashboards and product interfaces, I enjoy turning
+      complex ideas into designs that feel simple and effective.
+    </p>
+    <p>
+      I'm passionate about design, technology, and continuous learning. Whether I'm creating
+      visuals, exploring AI-powered workflows, or building better user experiences, my goal is
+      always the same: make things look better, work better, and be easier for people to use.
+    </p>
+    <p><strong>Online, you'll know me as Xsenze.</strong></p>
+  </div>
+
+  <Socials />
+
+  <h2 class="section-label mt-14">Experience</h2>
+
+  <div class="work mt-6">
+    {
+      companies.map((company) => (
+        <section class="company">
+          <div class="company-head">
+            <div class="company-icon">
+              <Icon name="solar:case-linear" class="size-4" />
+            </div>
+            <div>
+              <div class="company-name">
+                {company.name}
+                {company.isCurrent && (
+                  <span class="current-dot" aria-label="Current employer" />
+                )}
+              </div>
+              <div class="company-meta">
+                {company.metaHref ? (
+                  <a
+                    href={company.metaHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="meta-link"
+                  >
+                    {company.meta}
+                  </a>
+                ) : (
+                  company.meta
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div class="positions">
+            {company.positions.map((pos) => (
+              <details class="position">
+                <summary class="pos-head">
+                  <span class="pos-icon">
+                    <Icon name={pos.icon} class="size-4" />
+                  </span>
+                  <span class="pos-main">
+                    <span class:list={['pos-title', pos.current && 'pos-title--current']}>
+                      {pos.title}
+                    </span>
+                    <span class="pos-meta">{pos.meta}</span>
+                  </span>
+                  <span class="chevron">
+                    <Icon name="solar:alt-arrow-down-linear" class="size-4" />
+                  </span>
+                </summary>
+
+                <div class="pos-body">
+                  <ul class="bullets">
+                    {pos.bullets.map((b) => (
+                      <li>{b}</li>
+                    ))}
+                  </ul>
+
+                  {pos.link && (
+                    <a
+                      class="pos-link"
+                      href={pos.link.href}
+                      aria-label={pos.link.label}
+                      {...(pos.link.external
+                        ? { target: '_blank', rel: 'noopener noreferrer' }
+                        : {})}
+                    >
+                      {pos.link.label} ↗
+                    </a>
+                  )}
+
+                  <div class="skills">
+                    {pos.skills.map((s) => (
+                      <span class="tag">{s}</span>
+                    ))}
+                  </div>
+                </div>
+              </details>
+            ))}
+          </div>
+        </section>
+      ))
+    }
+  </div>
+
+  <h2 class="section-label mt-14">Education</h2>
+  <dl class="index mt-6">
+    {
+      education.map((e) => (
+        <div class="index-row">
+          <dt>{e.period}</dt>
+          <dd>{e.detail}</dd>
+        </div>
+      ))
+    }
+  </dl>
+
+  <h2 class="section-label mt-14">Certifications</h2>
+  <ul class="certs mt-6">
+    {certifications.map((c) => <li>{c}</li>)}
+  </ul>
+</BaseLayout>
+
+<style>
+  .company + .company {
+    margin-top: 1.35rem;
+  }
+
+  .company-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .company-icon {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--muted);
+    color: var(--foreground);
+  }
+
+  .company-name {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--foreground);
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .current-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 9999px;
+    background: var(--oklch-primary);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--oklch-primary) 16%, transparent);
+  }
+
+  .company-meta {
+    margin-top: 1px;
+    color: var(--muted-foreground);
+    font-size: 13px;
+  }
+
+  .meta-link {
+    color: var(--muted-foreground);
+    transition: color 0.2s;
+  }
+
+  .meta-link:hover {
+    color: var(--oklch-primary);
+  }
+
+  /* Vertical rule tying a company's roles together. */
+  .positions {
+    margin-left: 17px;
+    border-left: 1px solid var(--border);
+    padding-top: 0.2rem;
+    padding-left: 1.65rem;
+  }
+
+  .position {
+    padding: 0.4rem 0;
+  }
+
+  .position summary {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    cursor: pointer;
+    outline: none;
+    list-style: none;
+  }
+
+  .position summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .pos-icon {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+    color: var(--muted-foreground);
+  }
+
+  .pos-main {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .pos-title {
+    display: block;
+    color: var(--foreground);
+    font-size: 15px;
+    font-weight: 600;
+    transition: color 0.2s;
+  }
+
+  summary:hover .pos-title,
+  .pos-title--current {
+    color: var(--oklch-primary);
+  }
+
+  .pos-meta {
+    display: block;
+    margin-top: 2px;
+    color: var(--muted-foreground);
+    font-size: 13px;
+    letter-spacing: 0.01em;
+  }
+
+  .chevron {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--muted-foreground);
+    transition: transform 0.35s var(--ease-spring);
+  }
+
+  details[open] .chevron {
+    transform: rotate(180deg);
+  }
+
+  summary:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  .pos-body {
+    padding-top: 0.5rem;
+    padding-left: 1.65rem;
+  }
+
+  .bullets {
+    display: flex;
+    flex-direction: column;
+    gap: 0.28rem;
+  }
+
+  .bullets li {
+    position: relative;
+    padding-left: 0.9rem;
+    color: var(--muted-foreground);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .bullets li::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 2px;
+    width: 3px;
+    height: 3px;
+    border-radius: 9999px;
+    background: var(--muted-foreground);
+  }
+
+  .pos-link {
+    display: inline-block;
+    margin-top: 0.5rem;
+    color: var(--foreground);
+    font-size: 13px;
+    text-decoration: underline;
+    text-decoration-color: color-mix(in oklch, var(--muted-foreground) 40%, transparent);
+    text-underline-offset: 3px;
+    transition: color 0.2s, text-decoration-color 0.2s;
+  }
+
+  .pos-link:hover {
+    color: var(--oklch-primary);
+    text-decoration-color: var(--oklch-primary);
+  }
+
+  .skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.7rem;
+  }
+
+  .tag {
+    border-radius: 9999px;
+    background: var(--muted);
+    padding: 2px 9px;
+    color: var(--muted-foreground);
+    font-size: 11px;
+  }
+
+  .certs {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .certs li {
+    position: relative;
+    padding-left: 0.9rem;
+    color: var(--muted-foreground);
+    line-height: 1.5;
+  }
+
+  .certs li::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 2px;
+    width: 3px;
+    height: 3px;
+    border-radius: 9999px;
+    background: var(--muted-foreground);
+  }
+</style>

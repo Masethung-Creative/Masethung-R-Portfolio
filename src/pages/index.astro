@@ -1,0 +1,86 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Socials from '../components/Socials.astro';
+import { selectedWork, currentlyBuilding } from '../data/work';
+import { site } from '../config';
+
+/**
+ * Eager-glob the assets folder so `image` strings in the data file resolve to
+ * real ImageMetadata that Astro can optimise at build time.
+ */
+const images = import.meta.glob<{ default: ImageMetadata }>(
+  '../assets/*.{svg,png,jpg,jpeg,webp,avif}',
+  { eager: true },
+);
+
+const resolve = (file: string) => images[`../assets/${file}`]?.default;
+---
+
+<BaseLayout>
+  <section>
+    <h1 class="text-3xl leading-[1.08] font-bold tracking-tight sm:text-4xl">
+      Hey, I'm {site.name}.
+    </h1>
+    <p class="mt-4 max-w-[32rem] text-xl leading-snug text-foreground">
+      I solve design problems people remember.
+    </p>
+    <p class="mt-4 max-w-[34rem] leading-relaxed text-muted-foreground">
+      Graphic designer and brand identity specialist in Bengaluru. Four years in, 400+ projects
+      for 94+ clients across nine countries.
+    </p>
+
+    <Socials />
+  </section>
+
+  <h2 class="section-label mt-16">Currently building</h2>
+  <a href={currentlyBuilding.href} class="group mt-5 block">
+    <h3
+      class="text-lg font-semibold tracking-tight text-foreground transition-colors group-hover:text-primary"
+    >
+      {currentlyBuilding.title}
+    </h3>
+    <p class="mt-1 max-w-[38rem] text-[14px] leading-relaxed text-muted-foreground">
+      {currentlyBuilding.description}
+    </p>
+  </a>
+
+  <h2 class="section-label mt-16">Selected work</h2>
+  <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-3">
+    {
+      selectedWork.map((p, i) => {
+        const src = resolve(p.image);
+        /**
+         * The top row is above the fold, so it loads eagerly at high priority —
+         * `loading="eager"` on its own tells the browser not to defer but gives
+         * it no ranking, which is what audits flag. Everything below the fold
+         * lazy-loads at low priority so it can't compete with the hero row.
+         */
+        const isAboveFold = i < 3;
+        return (
+          <figure class="group">
+            <div class="aspect-[4/5] overflow-hidden rounded-xl bg-muted">
+              {src && (
+                <Image
+                  src={src}
+                  alt={p.title}
+                  widths={[256, 420, 640, 840]}
+                  sizes="(min-width: 640px) 190px, calc(100vw - 3rem)"
+                  loading={isAboveFold ? 'eager' : 'lazy'}
+                  fetchpriority={isAboveFold ? 'high' : 'low'}
+                  decoding="async"
+                  draggable={false}
+                  class="size-full object-cover transition-transform duration-500 ease-[var(--ease-quart)] group-hover:scale-[1.04]"
+                />
+              )}
+            </div>
+            <figcaption class="mt-2">
+              <span class="block text-[13px] font-medium text-foreground">{p.title}</span>
+              <span class="block text-[12px] text-muted-foreground">{p.caption}</span>
+            </figcaption>
+          </figure>
+        );
+      })
+    }
+  </div>
+</BaseLayout>

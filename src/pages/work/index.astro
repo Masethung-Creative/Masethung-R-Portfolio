@@ -1,0 +1,149 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import { tools } from '../../data/work';
+import { site } from '../../config';
+
+const projects = (await getCollection('projects', ({ data }) => !data.draft)).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+
+const fmt = (d: Date) =>
+  d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+---
+
+<BaseLayout title={`Work — ${site.name}`}>
+  <Breadcrumb current="WORK" />
+
+  <header class="mt-14">
+    <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Work</h1>
+    <p class="mt-2 text-muted-foreground">
+      Selected projects from my design work, plus where to find the freelance side of things.
+    </p>
+  </header>
+
+  <h2 class="section-label mt-12">Selected projects</h2>
+  <div class="entries mt-5">
+    {
+      projects.map((p) => (
+        <a href={`/work/${p.id}`} class="entry entry-link">
+          <div class="entry-head">
+            <span class="entry-title">{p.data.title}</span>
+            {p.data.date ? (
+              <time class="entry-meta" datetime={p.data.date.toISOString()}>
+                {fmt(p.data.date)}
+              </time>
+            ) : (
+              <span class="entry-meta">{p.data.meta}</span>
+            )}
+          </div>
+          <p class="entry-desc">{p.data.summary}</p>
+        </a>
+      ))
+    }
+  </div>
+
+  <h2 class="section-label mt-14">Elsewhere</h2>
+  <div class="entries mt-5">
+    {
+      tools.map((t) => (
+        <div class="entry">
+          <div class="entry-head">
+            <a
+              href={t.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="entry-title as-link"
+            >
+              {t.title} ↗
+            </a>
+          </div>
+          <p class="entry-desc">{t.description}</p>
+          {t.tags && (
+            <div class="tags">
+              {t.tags.map((tag) => (
+                <span class="tag">{tag}</span>
+              ))}
+            </div>
+          )}
+        </div>
+      ))
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .entries {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .entry {
+    display: block;
+    padding: 1rem 0;
+  }
+
+  .entry + .entry {
+    border-top: 1px solid color-mix(in oklch, var(--border) 55%, transparent);
+  }
+
+  .entry-link {
+    transition: opacity 0.2s;
+  }
+
+  /* Hovering one entry dims its siblings. */
+  .entries:has(.entry-link:hover) .entry-link:not(:hover) {
+    opacity: 0.55;
+  }
+
+  .entry-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .entry-title {
+    color: var(--foreground);
+    font-size: 15px;
+    font-weight: 600;
+    transition: color 0.2s;
+  }
+
+  .entry-link:hover .entry-title,
+  a.as-link.entry-title:hover {
+    color: var(--oklch-primary);
+  }
+
+  .entry-meta {
+    flex-shrink: 0;
+    color: var(--muted-foreground);
+    font-size: 12px;
+    white-space: nowrap;
+    transition: color 0.2s;
+  }
+
+  .entry-desc {
+    max-width: 46ch;
+    margin-top: 5px;
+    color: var(--muted-foreground);
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.7rem;
+  }
+
+  .tag {
+    border-radius: 9999px;
+    background: var(--muted);
+    padding: 2px 9px;
+    color: var(--muted-foreground);
+    font-size: 11px;
+  }
+</style>

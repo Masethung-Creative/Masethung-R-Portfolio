@@ -1,0 +1,219 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import { site } from '../../config';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects', ({ data }) => !data.draft);
+  const sorted = projects.sort((a, b) => a.data.order - b.data.order);
+
+  return sorted.map((project, i) => ({
+    params: { slug: project.id },
+    props: {
+      project,
+      /** Wraps around so the last entry points back to the first. */
+      next: sorted[(i + 1) % sorted.length],
+    },
+  }));
+}
+
+const { project, next } = Astro.props;
+const { Content } = await render(project);
+const { title, summary, role, facts, tags, date, meta } = project.data;
+
+const when = date
+  ? date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+  : meta;
+---
+
+<BaseLayout title={`${title} — ${site.name}`} description={summary}>
+  <Breadcrumb current="WORK" href="/work" />
+
+  <header class="mt-14">
+    <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">{title}</h1>
+    <p class="mt-3 max-w-[38rem] leading-relaxed text-muted-foreground">{summary}</p>
+
+    {
+      tags.length > 0 && (
+        <div class="tags mt-5">
+          {tags.map((t) => (
+            <span class="tag">{t}</span>
+          ))}
+        </div>
+      )
+    }
+  </header>
+
+  <dl class="index mt-10">
+    <div class="index-row">
+      <dt>Role</dt>
+      <dd>{role}</dd>
+    </div>
+    {
+      facts.map((f) => (
+        <div class="index-row">
+          <dt>{f.label}</dt>
+          <dd>{f.value}</dd>
+        </div>
+      ))
+    }
+    {
+      when && (
+        <div class="index-row">
+          <dt>Status</dt>
+          <dd>{when}</dd>
+        </div>
+      )
+    }
+  </dl>
+
+  <article class="prose mt-12">
+    <Content />
+  </article>
+
+  <nav class="next-up mt-16">
+    <span class="section-label">Next</span>
+    <a href={`/work/${next.id}`} class="next-link group">
+      <span class="next-title">{next.data.title}</span>
+      <span class="next-arrow" aria-hidden="true">→</span>
+    </a>
+  </nav>
+</BaseLayout>
+
+<style>
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .tag {
+    border-radius: 9999px;
+    background: var(--muted);
+    padding: 2px 9px;
+    color: var(--muted-foreground);
+    font-size: 11px;
+  }
+
+  /* Long-form body copy. Scoped so it can't leak into other pages. */
+  .prose :global(h2) {
+    margin-top: 2.5rem;
+    color: var(--foreground);
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .prose :global(h2:first-child) {
+    margin-top: 0;
+  }
+
+  .prose :global(h3) {
+    margin-top: 1.75rem;
+    color: var(--foreground);
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .prose :global(p) {
+    margin-top: 0.9rem;
+    max-width: 38rem;
+    color: var(--muted-foreground);
+    line-height: 1.7;
+  }
+
+  .prose :global(strong) {
+    color: var(--foreground);
+    font-weight: 600;
+  }
+
+  .prose :global(a) {
+    color: var(--foreground);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in oklch, var(--muted-foreground) 40%, transparent);
+    text-underline-offset: 4px;
+    transition: color 0.2s, text-decoration-color 0.2s;
+  }
+
+  .prose :global(a:hover) {
+    color: var(--oklch-primary);
+    text-decoration-color: var(--oklch-primary);
+  }
+
+  .prose :global(ul) {
+    margin-top: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .prose :global(li) {
+    position: relative;
+    max-width: 38rem;
+    padding-left: 1rem;
+    color: var(--muted-foreground);
+    line-height: 1.6;
+  }
+
+  .prose :global(li)::before {
+    content: '';
+    position: absolute;
+    top: 11px;
+    left: 2px;
+    width: 3px;
+    height: 3px;
+    border-radius: 9999px;
+    background: var(--muted-foreground);
+  }
+
+  .prose :global(img) {
+    margin-top: 1.5rem;
+    border-radius: 0.75rem;
+    border: 1px solid color-mix(in oklch, var(--border) 70%, transparent);
+  }
+
+  .prose :global(blockquote) {
+    margin-top: 1.25rem;
+    border-left: 2px solid var(--oklch-primary);
+    padding-left: 1rem;
+    color: var(--muted-foreground);
+    font-style: italic;
+  }
+
+  .next-up {
+    border-top: 1px solid color-mix(in oklch, var(--border) 55%, transparent);
+    padding-top: 1.5rem;
+  }
+
+  .next-link {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+
+  .next-title {
+    color: var(--foreground);
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    transition: color 0.2s;
+  }
+
+  .next-link:hover .next-title {
+    color: var(--oklch-primary);
+  }
+
+  .next-arrow {
+    flex-shrink: 0;
+    color: var(--muted-foreground);
+    transition: transform 0.35s var(--ease-spring), color 0.2s;
+  }
+
+  .next-link:hover .next-arrow {
+    color: var(--oklch-primary);
+    transform: translateX(4px);
+  }
+</style>

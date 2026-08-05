@@ -1,0 +1,187 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: var(--font-space-grotesk);
+  --font-mono: var(--font-space-grotesk);
+  --default-font-family: var(--font-space-grotesk);
+  --default-mono-font-family: var(--font-space-grotesk);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-primary: var(--oklch-primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+}
+
+:root {
+  color-scheme: dark;
+
+  --oklch-primary: oklch(65% 0.259 46.59);
+  --background: oklch(14.7% 0.004 49.25);
+  --foreground: oklch(98.5% 0.001 106.423);
+  --card: oklch(21.6% 0.006 56.043);
+  --primary-foreground: oklch(21.6% 0.006 56.043);
+  --muted: oklch(26.8% 0.007 34.298);
+  --muted-foreground: oklch(70.9% 0.01 56.259);
+  --border: oklch(100% 0 0 / 0.1);
+  --ring: oklch(55.3% 0.013 58.071);
+
+  --ease-spring: linear(
+    0, 0.006, 0.025 2.8%, 0.101 6.1%, 0.539 18.9%, 0.721 25.3%, 0.849,
+    0.937 35.8%, 0.968, 0.991 44.9%, 1.006, 1.017 53.8%, 1.02, 1.018 61.5%,
+    1.006 76.9%, 1.001 83.2%, 0.998 89.3%, 1
+  );
+  --ease-quart: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-space-grotesk);
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  :focus {
+    outline: none;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklch, var(--oklch-primary) 30%, transparent);
+    color: var(--foreground);
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* `bolder` resolves unevenly across the Space Grotesk weights we load. */
+  strong,
+  b {
+    color: var(--foreground);
+    font-weight: 600;
+  }
+
+  .skip-to-content {
+    position: absolute;
+    top: 0.5rem;
+    left: -9999px;
+    z-index: 9999;
+    border-radius: 0.5rem;
+    background-color: var(--background);
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--foreground);
+  }
+
+  .skip-to-content:focus {
+    left: 0.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+@view-transition {
+  navigation: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+}
+
+/* ---- shared component classes ---- */
+
+.section-label {
+  color: var(--muted-foreground);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.index {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 0.9rem 1.5rem;
+}
+
+.index-row {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  line-height: 1.5;
+}
+
+.index-row dt {
+  color: var(--muted-foreground);
+}
+
+.index-row dd {
+  min-width: 0;
+  color: var(--foreground);
+  overflow-wrap: anywhere;
+}
+
+.link {
+  color: var(--foreground);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklch, var(--muted-foreground) 40%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  transition: color 0.2s, text-decoration-color 0.2s;
+}
+
+.link:hover {
+  color: var(--oklch-primary);
+  text-decoration-color: var(--oklch-primary);
+}
+
+.social {
+  display: inline-flex;
+  margin: -0.5rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  color: var(--muted-foreground);
+  transition: color 0.2s;
+}
+
+.social:hover {
+  color: var(--oklch-primary);
+}

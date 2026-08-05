@@ -1,0 +1,113 @@
+---
+import { Icon } from 'astro-icon/components';
+import { mailto } from '../config';
+
+/** Trailing slashes normalised so "/about/" still matches "/about". */
+const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
+
+const links = [
+  { href: '/', label: 'Home', linear: 'solar:home-smile-angle-linear', bold: 'solar:home-smile-angle-bold' },
+  { href: '/about', label: 'About', linear: 'solar:user-linear', bold: 'solar:user-bold' },
+  { href: '/work', label: 'Work', linear: 'solar:case-linear', bold: 'solar:case-bold' },
+];
+
+/**
+ * `dock-item` carries the corner-rendering fixes (see <style> below) that the
+ * utility classes alone can't express — a real inset border instead of a ring,
+ * and a promoted layer so the radius stays clipped through the press scale.
+ */
+const base =
+  'dock-item group flex size-10 items-center justify-center rounded-full transition duration-200 active:scale-90';
+const active = 'dock-item--active bg-foreground/10 text-foreground';
+const idle = 'text-muted-foreground hover:bg-foreground/5 hover:text-foreground';
+---
+
+<nav
+  aria-label="Primary"
+  class="fixed inset-x-0 bottom-4 z-50 flex justify-center px-4 md:bottom-6 md:justify-end md:px-6"
+>
+  <div
+    class="flex items-center gap-1 rounded-full border border-border/60 bg-card/70 p-1 backdrop-blur-md"
+    style="box-shadow: 0 6px 24px oklch(0 0 0 / 0.1); view-transition-name: dock;"
+  >
+    {
+      links.map((l) => {
+        const isActive = path === l.href;
+        return (
+          <a
+            href={l.href}
+            aria-label={l.label}
+            aria-current={isActive ? 'page' : undefined}
+            class:list={[base, isActive ? active : idle]}
+          >
+            <Icon name={isActive ? l.bold : l.linear} class="size-5" />
+            <span class="sr-only">{l.label}</span>
+          </a>
+        );
+      })
+    }
+
+    <a href={mailto} aria-label="Email" class:list={[base, idle]}>
+      {/* Outline swaps to filled while the link is held down. */}
+      <span class="relative block size-5">
+        <Icon
+          name="solar:letter-linear"
+          class="absolute inset-0 size-5 transition-opacity duration-500 group-active:opacity-0"
+        />
+        <Icon
+          name="solar:letter-bold"
+          class="absolute inset-0 size-5 opacity-0 transition-opacity duration-500 group-active:opacity-100"
+        />
+      </span>
+      <span class="sr-only">Email</span>
+    </a>
+  </div>
+</nav>
+
+<style>
+  /**
+   * Rounded corners were showing a square seam during the press animation.
+   * Two causes, two fixes:
+   *
+   * 1. The active state used `ring-1 ring-inset`, which Tailwind renders as a
+   *    box-shadow. Shadow edges antialias independently of the border-radius
+   *    clip, so a faint rectangle showed at the corners. Replaced with a real
+   *    inset border drawn by a pseudo-element that inherits the radius.
+   *
+   * 2. `active:scale-90` transforms the element. Without a promoted layer the
+   *    browser rasterises the corner mask before scaling, so the radius clips
+   *    at the wrong size mid-press and flashes rectangular. `translateZ(0)`
+   *    plus explicit backface/mask hints keep the clip correct throughout.
+   */
+  .dock-item {
+    position: relative;
+    isolation: isolate;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    /* Forces the rounded clip to be applied on the composited layer. */
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+    will-change: transform;
+  }
+
+  /* Inset hairline for the current page, clipped to the same circle. */
+  .dock-item--active::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1px solid var(--border);
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  /**
+   * With reduced motion the press scale is disabled globally, so the layer
+   * promotion is unnecessary — but `transform` must stay a transform value,
+   * not `none`, or the composited clip is lost and the seam returns.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    .dock-item {
+      will-change: auto;
+    }
+  }
+</style>

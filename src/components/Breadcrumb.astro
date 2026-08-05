@@ -1,0 +1,31 @@
+---
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+  /** Current page name, rendered uppercase in the accent colour. */
+  current: string;
+  /** Where the back link points. Defaults to home. */
+  href?: string;
+  /** Back link label. Defaults to "BACK TO HOME". */
+  label?: string;
+}
+
+const { current, href = '/', label } = Astro.props;
+
+const backLabel = label ?? (href === '/' ? 'BACK TO HOME' : 'BACK');
+---
+
+<nav
+  aria-label="Breadcrumb"
+  class="flex items-center gap-2 text-[12px] font-medium tracking-wider uppercase"
+>
+  <a
+    href={href}
+    class="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-muted-foreground transition-colors duration-300 hover:text-foreground"
+  >
+    <Icon name="solar:arrow-left-linear" class="size-3.5" />
+    {backLabel}
+  </a>
+  <span class="text-border">/</span>
+  <span class="rounded-md px-2 py-1 text-primary">{current}</span>
+</nav>

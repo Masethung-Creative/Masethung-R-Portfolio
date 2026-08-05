@@ -1,0 +1,31 @@
+---
+import { Icon } from 'astro-icon/components';
+import BrandIcon from './BrandIcon.astro';
+import { socials, mailto } from '../config';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className = 'mt-6' } = Astro.props;
+---
+
+<div class:list={['flex flex-wrap gap-x-5 gap-y-2', className]}>
+  {
+    socials.map((s) => (
+      <a
+        href={s.href}
+        class="social inline-flex"
+        aria-label={s.label}
+        title={s.label}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <BrandIcon name={s.icon} />
+      </a>
+    ))
+  }
+  <a href={mailto} class="social inline-flex" aria-label="Email" title="Email">
+    <Icon name="solar:letter-linear" class="size-5" />
+  </a>
+</div>

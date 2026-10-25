@@ -8,7 +8,7 @@ import icon from 'astro-icon';
 export default defineConfig({
   // Update this if your Vercel project name differs, then redeploy.
   // It drives canonical URLs, the sitemap, and social-share previews.
-  site: 'https://masethung.vercel.app',
+  site: 'https://masethung-r-portfolio.vercel.app',
   integrations: [sitemap(), icon()],
   vite: {
     plugins: [tailwindcss()],

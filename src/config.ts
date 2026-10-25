@@ -12,7 +12,7 @@ export const site = {
   description:
     'Masethung R: graphic designer and brand identity specialist in Bengaluru. 400+ projects for 94+ clients across 9 countries.',
   /** Must match `site` in astro.config.mjs. */
-  url: 'https://masethung.vercel.app',
+  url: 'https://masethung-r-portfolio.vercel.app',
   email: 'masethung2618@gmail.com',
   twitterHandle: '@masethung',
   ogImage: '/og.png',
